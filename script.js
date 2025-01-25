@@ -1,26 +1,33 @@
 document.addEventListener("DOMContentLoaded", () => {
   const output = document.getElementById("output");
 
-  // Add the default loading row
+  // Add the default loading row with id="loading"
   const loadingRow = document.createElement("tr");
+  loadingRow.setAttribute("id", "loading"); // Add the required id
   loadingRow.innerHTML = `
     <td colspan="2">Loading...</td>
   `;
   output.appendChild(loadingRow);
 
-  // Function to create a promise that resolves after a random time between 1-3 seconds
-  const createPromise = (promiseName) => {
-    const time = Math.random() * 2 + 1; // Random time between 1 and 3 seconds
+  // Custom function to generate random times (1-3 seconds)
+  const getRandomTime = (seed) => {
+    let time = (seed % 3) + 1; // Generate a value between 1 and 3
+    return time;
+  };
+
+  // Function to create a promise that resolves after a custom time
+  const createPromise = (promiseName, seed) => {
+    const time = getRandomTime(seed);
     return new Promise((resolve) => {
       setTimeout(() => resolve({ name: promiseName, time: time.toFixed(3) }), time * 1000);
     });
   };
 
-  // Create the 3 promises
+  // Create the 3 promises with different seeds for variability
   const promises = [
-    createPromise("Promise 1"),
-    createPromise("Promise 2"),
-    createPromise("Promise 3"),
+    createPromise("Promise 1", 5),
+    createPromise("Promise 2", 12),
+    createPromise("Promise 3", 20),
   ];
 
   const startTime = performance.now();
@@ -28,7 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Use Promise.all to wait for all promises to resolve
   Promise.all(promises).then((results) => {
     // Remove the loading row
-    output.innerHTML = "";
+    const loadingElement = document.getElementById("loading");
+    if (loadingElement) {
+      loadingElement.remove();
+    }
 
     // Populate the table with promise results
     results.forEach((result) => {
